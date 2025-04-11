@@ -5,7 +5,6 @@ import {
   Typography,
   IconButton,
   Box,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -15,6 +14,7 @@ import {
   ListItemText,
   Skeleton,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useJornals } from "@/hooks/journals";
 import Icon from "@/assets/img/icon.png";
@@ -22,7 +22,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 export const Home = () => {
-  const { jornalData, isLoading } = useJornals();
+  const { jornalData, loading } = useJornals();
   const [bannerNews, setBannerNews] = useState<any>({});
 
   const autores = [
@@ -81,7 +81,7 @@ export const Home = () => {
 
       {/* Main Content - Banner */}
       <Box sx={{ p: 2 }}>
-        {isLoading || !bannerNews?.title ? (
+        {loading || !bannerNews?.title ? (
           <Card>
             <Skeleton variant="rectangular" height={200} />
             <CardContent>
@@ -94,7 +94,9 @@ export const Home = () => {
           <Card>
             <Link
               style={{ cursor: "pointer", color: "#000" }}
-              to={`/news/${bannerNews?.documentId}`}
+              to="/news/$id"
+              params={{ id: bannerNews?.documentId }}
+
             >
               <CardMedia
                 component="img"
@@ -106,7 +108,9 @@ export const Home = () => {
             <CardContent>
               <Link
                 style={{ cursor: "pointer", color: "#000" }}
-                to={`/news/${bannerNews?.documentId}`}
+                to="/news/$id"
+                params={{ id: bannerNews?.documentId }}
+
               >
                 <Typography variant="caption" color="textSecondary">
                   {convertToBrazilianDateWithHours(bannerNews?.publishedAt)}
@@ -133,7 +137,7 @@ export const Home = () => {
           }}
         >
           <h1>Últimas notícias:</h1>
-          {isLoading
+          {loading
             ? Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i} sx={{ display: "flex", paddingBottom: 0 }}>
                   <Skeleton variant="rectangular" width={300} height={200} />
@@ -149,7 +153,8 @@ export const Home = () => {
                 <Card key={item.id} sx={{ display: "flex", paddingBottom: 0 }}>
                   <Link
                     style={{ cursor: "pointer", color: "#000" }}
-                    to={`/news/${item?.documentId}`}
+                    to="/news/$id"
+                    params={{ id: item?.documentId }}
                   >
                     <CardMedia
                       component="img"
@@ -172,8 +177,9 @@ export const Home = () => {
                     </Typography>
                     <Link
                       style={{ cursor: "pointer", color: "#000" }}
-                      to={`/news/${item?.documentId}`}
-                    >
+                      to="/news/$id"
+                      params={{ id: item?.documentId }}
+                        >
                       <Typography variant="subtitle1" fontWeight="bold">
                         {item.title}
                       </Typography>
@@ -190,7 +196,8 @@ export const Home = () => {
         </section>
 
         {/* Responsáveis */}
-        <Grid sx={{ padding: "1rem" }} item xs={12} md={6}>
+        <Grid container spacing={2}>
+        <Grid sx={{ padding: "1rem" }} >
           <Card>
             <CardContent>
               <Typography
@@ -223,6 +230,7 @@ export const Home = () => {
               </List>
             </CardContent>
           </Card>
+        </Grid>
         </Grid>
       </section>
     </Box>
