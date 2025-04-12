@@ -1,6 +1,5 @@
-import React from "react";
 
-export function Login({ className, ...props }: React.ComponentProps<"div">) {
+export function Login() {
 
   // Define a função 'handleSubmit' que recebe um evento de formulário.
   // Previne o comportamento padrão do formulário.
