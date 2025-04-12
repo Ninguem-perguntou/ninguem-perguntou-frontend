@@ -168,13 +168,19 @@ export const Home = () => {
                     />
                   </Link>
                   <CardContent>
-                    <Typography
-                      variant="caption"
-                      color="var(--pink)"
-                      fontWeight="bold"
-                    >
-                      {item.slug}
-                    </Typography>
+                  {item?.categories.map((category: any, index: number) => (
+                       <Typography
+                         key={index}
+                         variant="caption"
+                         color="var(--pink)"
+                         fontWeight="bold"
+                         style={{ marginRight: "0.2rem" }}
+                       >
+                         {index === item.categories.length - 1
+                           ? category.name
+                           : `${category.name},`}
+                       </Typography>
+                     ))}
                     <Link
                       style={{ cursor: "pointer", color: "#000" }}
                       to="/news/$id"
