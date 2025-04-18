@@ -13,17 +13,16 @@ import { getDesignTokens, inputsCustomizations } from './customTheme';
 import { useRegister } from '@/hooks/register';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
-import { useLogin } from '@/hooks/login';
-import { decodeToken } from '@/utils/token';
-import { useAuthStore } from '@/store/Auth';
 
-export const Login = () => {
+export const Register = () => {
   const [form, setForm] = React.useState({
-    identifier: '',
+    username: '',
+    email: '',
     password: '',
+    confirmPassword: '',
   });
 
-  const {login, loading, error} = useLogin();
+  const {register, loading, error} = useRegister();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,16 +36,12 @@ export const Login = () => {
     e.preventDefault();
 
     try {
-      const { data } = await login({identifier: form.identifier, password: form.password});
-      toast.success('Login realizado com sucesso!');
-      const userData = decodeToken(data.jwt);
-
-       // Armazena os dados de autenticação
-       useAuthStore.getState().setAuthData(userData, data.jwt);
-      navigate({ to: '/' });
+      await register({email: form.email, password: form.password, username: form.username});
+      toast.success('Registro realizado com sucesso!');
+      navigate({ to: '/auth/login' });
     }catch (err) {
       console.error(err);
-      toast.error('Erro ao se logar usuário. Verifique os dados e tente novamente.');
+      toast.error('Erro ao registrar usuário. Verifique os dados e tente novamente.');
     }
   };
 
@@ -79,19 +74,29 @@ export const Login = () => {
         }}
       >
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Login
+          Criar conta
         </Typography>
         <Typography variant="body1" color="text.secondary" mb={3}>
-          Preencha os campos abaixo para se logar.
+          Preencha os campos abaixo para se registrar.
         </Typography>
 
         <Stack spacing={2}>
           <TextField
-            name="identifier"
+            name="username"
+            label="Usuário"
+            placeholder="seu_nome_de_usuário"
+            value={form.username}
+            onChange={handleChange}
+            fullWidth
+            required
+            autoComplete="username"
+          />
+          <TextField
+            name="email"
             label="Email"
             placeholder="seuemail@exemplo.com"
             type="email"
-            value={form.identifier}
+            value={form.email}
             onChange={handleChange}
             fullWidth
             required
@@ -108,6 +113,17 @@ export const Login = () => {
             required
             autoComplete="new-password"
           />
+          <TextField
+            name="confirmPassword"
+            label="Confirmar Senha"
+            placeholder="••••••••"
+            type="password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            fullWidth
+            required
+            autoComplete="new-password"
+          />
 
           {error && (
             <Fade in={!!error}>
@@ -118,15 +134,6 @@ export const Login = () => {
           )}
 
           <Button
-            variant="text"
-            color="primary"
-            size="small"
-            onClick={() => navigate({ to: '/auth/register' })}
-            sx={{ textTransform: 'none', fontWeight: 600 }}
-          >
-            Não tem uma conta? Cadastre-se
-          </Button>
-          <Button
             type="submit"
             variant="contained"
             color="primary"
@@ -134,7 +141,7 @@ export const Login = () => {
             disabled={loading}
             sx={{ mt: 1, borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
           >
-            Login
+            Registrar
           </Button>
         </Stack>
       </Box>

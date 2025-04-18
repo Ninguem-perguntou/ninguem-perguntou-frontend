@@ -14,6 +14,8 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as NewsIdImport } from './routes/news/$id'
+import { Route as authAuthRegisterImport } from './routes/(auth)/auth/register'
+import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
 
 // Create Virtual Routes
 
@@ -30,6 +32,18 @@ const IndexLazyRoute = IndexLazyImport.update({
 const NewsIdRoute = NewsIdImport.update({
   id: '/news/$id',
   path: '/news/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authAuthRegisterRoute = authAuthRegisterImport.update({
+  id: '/(auth)/auth/register',
+  path: '/auth/register',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const authAuthLoginRoute = authAuthLoginImport.update({
+  id: '/(auth)/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -51,6 +65,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsIdImport
       parentRoute: typeof rootRoute
     }
+    '/(auth)/auth/login': {
+      id: '/(auth)/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof authAuthLoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/(auth)/auth/register': {
+      id: '/(auth)/auth/register'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof authAuthRegisterImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -59,36 +87,51 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/news/$id': typeof NewsIdRoute
+  '/auth/login': typeof authAuthLoginRoute
+  '/auth/register': typeof authAuthRegisterRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/news/$id': typeof NewsIdRoute
+  '/auth/login': typeof authAuthLoginRoute
+  '/auth/register': typeof authAuthRegisterRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
   '/news/$id': typeof NewsIdRoute
+  '/(auth)/auth/login': typeof authAuthLoginRoute
+  '/(auth)/auth/register': typeof authAuthRegisterRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/news/$id'
+  fullPaths: '/' | '/news/$id' | '/auth/login' | '/auth/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/news/$id'
-  id: '__root__' | '/' | '/news/$id'
+  to: '/' | '/news/$id' | '/auth/login' | '/auth/register'
+  id:
+    | '__root__'
+    | '/'
+    | '/news/$id'
+    | '/(auth)/auth/login'
+    | '/(auth)/auth/register'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   NewsIdRoute: typeof NewsIdRoute
+  authAuthLoginRoute: typeof authAuthLoginRoute
+  authAuthRegisterRoute: typeof authAuthRegisterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   NewsIdRoute: NewsIdRoute,
+  authAuthLoginRoute: authAuthLoginRoute,
+  authAuthRegisterRoute: authAuthRegisterRoute,
 }
 
 export const routeTree = rootRoute
@@ -102,7 +145,9 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/news/$id"
+        "/news/$id",
+        "/(auth)/auth/login",
+        "/(auth)/auth/register"
       ]
     },
     "/": {
@@ -110,6 +155,12 @@ export const routeTree = rootRoute
     },
     "/news/$id": {
       "filePath": "news/$id.tsx"
+    },
+    "/(auth)/auth/login": {
+      "filePath": "(auth)/auth/login.tsx"
+    },
+    "/(auth)/auth/register": {
+      "filePath": "(auth)/auth/register.tsx"
     }
   }
 }
