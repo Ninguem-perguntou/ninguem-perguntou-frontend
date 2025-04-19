@@ -7,10 +7,8 @@ import {
   Typography,
   createTheme,
   ThemeProvider,
-  Fade,
 } from '@mui/material';
 import { getDesignTokens, inputsCustomizations } from './customTheme';
-import { useRegister } from '@/hooks/register';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
 import { useLogin } from '@/hooks/login';

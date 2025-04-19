@@ -88,7 +88,7 @@ export const NewsById = () => {
       return;
     }
 
-    const {id: idUser} = decodeToken(token);
+    const {id: idUser}: any = decodeToken(token);
 
 
     if (newComment.trim() === "") {
@@ -258,10 +258,10 @@ export const NewsById = () => {
         {comments.map((comment: any) => (
           <Paper key={comment?.documentId} sx={{ padding: 2, marginBottom: 2, borderRadius: 2, boxShadow: 2 }}>
             <Grid container spacing={2} alignItems="center">
-              <Grid item>
+              <Grid >
                 <Avatar alt={comment?.user.username} src={AvatarProfile} sx={{ width: 40, height: 40 }} />
               </Grid>
-              <Grid item xs>
+              <Grid >
                 <Typography variant="body1" fontWeight="bold">
                   {comment?.user.username}
                 </Typography>

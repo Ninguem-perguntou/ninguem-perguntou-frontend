@@ -7,7 +7,6 @@ import {
   Typography,
   createTheme,
   ThemeProvider,
-  Fade,
 } from '@mui/material';
 import { getDesignTokens, inputsCustomizations } from './customTheme';
 import { useRegister } from '@/hooks/register';
@@ -22,7 +21,7 @@ export const Register = () => {
     confirmPassword: '',
   });
 
-  const {register, loading, error} = useRegister();
+  const {register, loading} = useRegister();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
