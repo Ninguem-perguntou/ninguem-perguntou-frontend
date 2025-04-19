@@ -33,7 +33,7 @@ import { decodeToken } from "@/utils/token";
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
   const { newsData, commentsData, loading, refetch } = useNews(id);
-  const {createComment, loading: loadingCreateComment, errorComment} = useCreateComments();
+  const {createComment, loading: loadingCreateComment} = useCreateComments();
   const navigate = useNavigate();
   const token = useAuthStore.getState().getToken(); // Verificando o token
   const [openSnackbar, setOpenSnackbar] = useState(false); // Para mostrar o Snackbar de sucesso ou erro
@@ -54,8 +54,8 @@ export const NewsById = () => {
       const { data: dataComments } = commentsData; // Desestruturando 'data' que contém os comentários
       const attributes = data; // Acessando 'data' corretamente
       const comments = dataComments; // Acessando 'data' corretamente
-      const commentsCount = comments.length; // Contando os comentários
       if (attributes || comments) {
+        const commentsCount = comments.length; // Contando os comentários
         setMockContent(attributes.content); // 'content' é um array
         setNewsTitle(attributes.title);
         setNewsDescription(attributes.description);
@@ -253,7 +253,7 @@ export const NewsById = () => {
         )}
       </Box>
       <div style={{ padding: 14 }} className="App">
-      <h1 style={{ fontWeight: 'bold', marginBottom: '20px' }}>Comentários</h1>
+      <h1 style={{ fontWeight: 'bold', marginBottom: '20px' }}>Comentários ({commentsCount})</h1>
       <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
         {comments.map((comment: any) => (
           <Paper key={comment?.documentId} sx={{ padding: 2, marginBottom: 2, borderRadius: 2, boxShadow: 2 }}>

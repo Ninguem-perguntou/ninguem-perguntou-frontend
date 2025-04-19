@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { PaletteMode } from '@mui/material';
 import {
   alpha,

@@ -21,7 +21,7 @@ export const Login = () => {
     password: '',
   });
 
-  const {login, loading, error} = useLogin();
+  const {login, loading} = useLogin();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
