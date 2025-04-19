@@ -9,6 +9,12 @@ import {
   CardContent,
   CardMedia,
   Skeleton,
+  Paper,
+  Grid,
+  Avatar,
+  Snackbar,
+  TextField,
+  Button,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
@@ -19,33 +25,86 @@ import { useNews } from "@/hooks/newsByID";
 import { toast } from "sonner";
 
 import Icon from "@/assets/img/icon.png";
+import AvatarProfile from "@/assets/img/avatar.jpg";
+import { useAuthStore } from "@/store/Auth";
+import { useCreateComments } from "@/hooks/createComment";
+import { decodeToken } from "@/utils/token";
 
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
-  const { newsData, loading } = useNews(id);
+  const { newsData, commentsData, loading, refetch } = useNews(id);
+  const {createComment, loading: loadingCreateComment, errorComment} = useCreateComments();
   const navigate = useNavigate();
+  const token = useAuthStore.getState().getToken(); // Verificando o token
+  const [openSnackbar, setOpenSnackbar] = useState(false); // Para mostrar o Snackbar de sucesso ou erro
 
   const [mockContent, setMockContent] = useState<BlocksContent>([]);
   const [newsTitle, setNewsTitle] = useState("");
   const [newsDescription, setNewsDescription] = useState("");
   const [newsCreatedAt, setNewsCreatedAt] = useState("");
+  const [newComment, setNewComment] = useState(""); // Estado para o novo comentário
+  const [commentsCount, setCommentsCount] = useState(0);
+  const [comments, setComments] = useState([]);
   const [category, setCategory] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (newsData) {
-      const { data } = newsData;
-      const attributes = data.data;
-
-      setMockContent(attributes.content);
-      setNewsTitle(attributes.title);
-      setNewsDescription(attributes.description);
-      setNewsCreatedAt(attributes.createdAt);
-      setCategory(attributes.categories);
-      setImageUrl(attributes.cover?.url || "");
-      toast.success("Notícia carregada com sucesso!");
+      const { data } = newsData;  // Desestruturando 'data' que contém o conteúdo
+      const { data: dataComments } = commentsData; // Desestruturando 'data' que contém os comentários
+      const attributes = data; // Acessando 'data' corretamente
+      const comments = dataComments; // Acessando 'data' corretamente
+      const commentsCount = comments.length; // Contando os comentários
+      if (attributes || comments) {
+        setMockContent(attributes.content); // 'content' é um array
+        setNewsTitle(attributes.title);
+        setNewsDescription(attributes.description);
+        setNewsCreatedAt(attributes.createdAt);
+        setCategory(attributes.categories); // Pode ser um array também, dependendo de como você quer lidar com isso
+        setImageUrl(attributes.cover?.url || ""); // Garante que a URL seja válida
+        setCommentsCount(commentsCount);
+        setComments(comments.map( (c: any) => {
+          return {
+            documentId: c.documentId,
+            comment: c.comment,
+            publishedAt: c.publishedAt,
+            user: {
+              documentId: c.users_permissions_user?.documentId,
+              username: c.users_permissions_user?.username,
+            },
+          }
+        })); // Armazena os comentários
+        toast.success("Notícia carregada com sucesso!");
+      }
     }
   }, [newsData]);
+
+  console.log("ID do usuário:", id); // Verifica o ID do usuário
+
+
+  const handleAddComment = async () => {
+    if (!token) {
+      toast.error("Você precisa estar autenticado para adicionar um comentário.");
+      return;
+    }
+
+    const {id: idUser} = decodeToken(token);
+
+
+    if (newComment.trim() === "") {
+      toast.error("Comentário não pode ser vazio.");
+      return;
+    }
+
+    try {
+      await createComment({comment: newComment, documentId: id, idUser: idUser});
+      toast.success("Comentário adicionado com sucesso!");
+      setNewComment(""); // Limpa o campo de comentário
+      refetch(); // Refaz a consulta para atualizar os comentários
+    } catch (error) {
+      toast.error("Erro ao adicionar comentário. Tente novamente.");
+    }
+  };
 
   return (
     <section
@@ -193,6 +252,69 @@ export const NewsById = () => {
           </Card>
         )}
       </Box>
+      <div style={{ padding: 14 }} className="App">
+      <h1 style={{ fontWeight: 'bold', marginBottom: '20px' }}>Comentários</h1>
+      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        {comments.map((comment: any) => (
+          <Paper key={comment?.documentId} sx={{ padding: 2, marginBottom: 2, borderRadius: 2, boxShadow: 2 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item>
+                <Avatar alt={comment?.user.username} src={AvatarProfile} sx={{ width: 40, height: 40 }} />
+              </Grid>
+              <Grid item xs>
+                <Typography variant="body1" fontWeight="bold">
+                  {comment?.user.username}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" paragraph>
+                  {comment?.comment}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {convertToBrazilianDateWithHours(comment?.publishedAt)}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </div>
+
+      {/* Se o token existir, mostrar o campo para adicionar comentário */}
+      {token ? (
+        <div style={{ marginTop: 20 }}>
+          <TextField
+            label="Adicionar comentário"
+            fullWidth
+            multiline
+            rows={4}
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            variant="outlined"
+          />
+          <Button
+            onClick={handleAddComment}
+            variant="contained"
+            color="primary"
+            disabled={loadingCreateComment}
+            style={{ marginTop: 10 }}
+          >
+            Adicionar Comentário
+          </Button>
+        </div>
+      ) : (
+        <div style={{ marginTop: 20 }}>
+          <Typography variant="body2" color="textSecondary">
+            Você precisa estar logado para adicionar um comentário.
+          </Typography>
+        </div>
+      )}
+
+      {/* Snackbar de feedback */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        message="Comentário adicionado com sucesso!"
+      />
+    </div>
     </section>
   );
 };

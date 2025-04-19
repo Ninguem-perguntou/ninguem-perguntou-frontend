@@ -125,14 +125,6 @@ export const Register = () => {
             autoComplete="new-password"
           />
 
-          {error && (
-            <Fade in={!!error}>
-              <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
-                {error}
-              </Typography>
-            </Fade>
-          )}
-
           <Button
             type="submit"
             variant="contained"

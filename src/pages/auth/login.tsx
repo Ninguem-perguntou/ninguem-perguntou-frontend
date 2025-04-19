@@ -109,14 +109,6 @@ export const Login = () => {
             autoComplete="new-password"
           />
 
-          {error && (
-            <Fade in={!!error}>
-              <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
-                {error}
-              </Typography>
-            </Fade>
-          )}
-
           <Button
             variant="text"
             color="primary"

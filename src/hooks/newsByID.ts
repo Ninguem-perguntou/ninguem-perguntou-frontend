@@ -6,24 +6,32 @@ export const useNews = (id?: string) => {
     queryKey: ["getNews", id],
     queryFn: async () => {
       try {
-        const result = await api.get("/articles/" + id + "?populate=*");
+        // Consulta da notícia
+        const newsResult = await api.get("/articles/" + id + "?populate=*");
 
-        if (result.status === 200) {
-          return { success: true, data: result.data, error: null };
+        // Consulta dos comentários
+        const commentsResult = await api.get(
+          `/comments?filters[news][documentId][$eq]=${id}&populate[users_permissions_user]=true`
+        );
+
+        if (newsResult.status === 200 && commentsResult.status === 200) {
+          return { success: true, data: { news: newsResult.data, comments: commentsResult.data }, error: null };
         }
 
-        throw new Error(result.data?.error || "Falha no login");
+        throw new Error(newsResult.data?.error || commentsResult.data?.error || "Falha na consulta");
       } catch (error: any) {
-        throw new Error(error.response?.data?.error || "Erro ao tentar logar");
+        throw new Error(error.response?.data?.error || "Erro ao buscar dados");
       }
     },
     enabled: !!id,
-    staleTime: 1000 * 60 * 15, // 5 minutos
+    staleTime: 1000 * 60 * 15, // 15 minutos
   });
 
   return {
-    newsData: query.data, // Chama a função de forma assíncrona
+    newsData: query.data?.data?.news, // A notícia
+    commentsData: query.data?.data?.comments, // Os comentários
     loading: query.isPending,
-    error: query.error instanceof Error ? query.error.message : null, // Obtém a mensagem de erro correta
+    refetch: query.refetch, // Função para refazer a consulta
+    error: query.error instanceof Error ? query.error.message : null, // Obtém a mensagem de erro
   };
 };
