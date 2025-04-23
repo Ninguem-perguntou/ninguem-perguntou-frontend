@@ -112,7 +112,7 @@ export const Home: React.FC = () => {
   const renderLoadingSkeleton = () => {
     const columns = getGridColumns();
     return Array.from({ length: columns * 2 }).map((_, index) => (
-      <Grid item xs={12} sm={6} md={4} key={`skeleton-${index}`}>
+      <Grid key={`skeleton-${index}`}>
         <Card sx={{ height: '100%' }}>
           <Skeleton variant="rectangular" height={160} />
           <CardContent>
