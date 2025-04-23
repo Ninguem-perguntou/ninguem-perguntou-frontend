@@ -16,7 +16,6 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 
 import { BlocksRenderer, type BlocksContent } from "@/components/index";
@@ -29,6 +28,7 @@ import AvatarProfile from "@/assets/img/avatar.jpg";
 import { useAuthStore } from "@/store/Auth";
 import { useCreateComments } from "@/hooks/createComment";
 import { decodeToken } from "@/utils/token";
+import {LogIn} from "lucide-react";
 
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
@@ -130,8 +130,8 @@ export const NewsById = () => {
             />
             NINGUÉM PERGUNTOU
           </Typography>
-          <IconButton edge="end" color="inherit">
-            <NotificationsIcon />
+          <IconButton edge="end" color="inherit" onClick={() => navigate({ to: "/auth/login" })}>
+              <LogIn  className="w-6 h-6 text-white" />
           </IconButton>
         </Toolbar>
       </AppBar>
