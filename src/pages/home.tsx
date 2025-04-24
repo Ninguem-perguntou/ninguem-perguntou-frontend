@@ -27,7 +27,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { LogIn, Search } from "lucide-react";
 import { useCategories } from "@/hooks/categories";
 import { TeamsMembres } from "@/components/TeamsMembres";
-import { NewsItemCard, renderNewsItem } from "@/components/RenderNewsItem";
+import { NewsItemCard } from "@/components/RenderNewsItem";
 
 export const Home: React.FC = () => {
   const { jornalData, loading } = useJornals();
