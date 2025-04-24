@@ -168,7 +168,7 @@ export const Home: React.FC = () => {
       </AppBar>
 
       {/* Banner Principal */}
-      <Container maxWidth={false} sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+      <Container maxWidth={false} sx={{ py: 4, width: 1 }}>
         {loading ? (
           <Grid container spacing={3}>
             <Grid >
