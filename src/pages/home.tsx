@@ -24,69 +24,40 @@ import {
 import { useJornals } from "@/hooks/journals";
 import Icon from "@/assets/img/icon.png";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { convertToBrazilianDateWithHours } from "@/utils/data";
 import { LogIn, Search } from "lucide-react";
 import { useCategories } from "@/hooks/categories";
-
-interface NewsItem {
-  id: string;
-  documentId: string;
-  title: string;
-  description: string;
-  cover?: {
-    url: string;
-  };
-  categories: Array<{
-    name: string;
-    slug: string;
-  }>;
-  publishedAt: string;
-  createdAt: string;
-}
+import { TeamsMembres } from "@/components/TeamsMembres";
+import { NewsItemCard, renderNewsItem } from "@/components/RenderNewsItem";
 
 export const Home: React.FC = () => {
   const { jornalData, loading } = useJornals();
   const { categoriesData } = useCategories();
-  const [bannerNews, setBannerNews] = useState<NewsItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-
-  const TEAM_MEMBERS = {
-    authors: [
-      "Ingrid Thauane Santos Oliveira",
-      "Isabela de Moura Costa",
-      "Matheus Borges Ribeiro",
-      "Raquel Soares Miguel de Azevedo",
-    ],
-    developers: [
-      "Artur Dantas Martins",
-      "Paulo Abdiel Sardinha de Sousa Santos",
-    ],
-  };
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (jornalData?.success && jornalData.data.data.length > 0) {
-      const [firstItem, ...remainingItems] = jornalData.data.data;
-      console.log(remainingItems)
-      setBannerNews(firstItem);
-    }
+  // Pegar a notícia principal (banner) e 4 notícias secundárias
+  const featuredNews = useMemo(() => {
+    if (!jornalData?.data.data) return { main: null, secondary: [] };
+    
+    const [main, ...remaining] = jornalData.data.data;
+    return {
+      main,
+      secondary: remaining.slice(0, 4) // Pegar as próximas 4 notícias
+    };
   }, [jornalData]);
 
-  // Filtra as notícias baseado na categoria selecionada
   const filteredNews = useMemo(() => {
     if (!jornalData?.data.data) return [];
-    if (!selectedCategory) return jornalData.data.data;
+    if (!selectedCategory) return jornalData.data.data.slice(5); // Pular as 5 primeiras (destaques)
     
     return jornalData.data.data.filter((news: any) => 
       news.categories.some((cat: any) => cat.slug === selectedCategory)
     );
   }, [jornalData, selectedCategory]);
 
-  // Conta quantas notícias existem por categoria
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     
@@ -129,88 +100,7 @@ export const Home: React.FC = () => {
     ));
   };
 
-  const renderNewsItem = (item: NewsItem) => (
-    <Grid key={item.id}>
-      <Card sx={{ 
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: theme.shadows[6]
-        }
-      }}>
-        <Link to="/news/$id" params={{ id: item.documentId }} style={{ textDecoration: 'none' }}>
-          <CardMedia
-            component="img"
-            height="200"
-            image={item.cover?.url || '/default-news.jpg'}
-            alt={item.title}
-            sx={{ 
-              objectFit: 'cover',
-              borderTopLeftRadius: 'inherit',
-              borderTopRightRadius: 'inherit'
-            }}
-          />
-          <CardContent sx={{ flexGrow: 1 }}>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              {item.categories?.map((category, idx) => (
-                <Chip
-                  key={`${item.id}-category-${idx}`}
-                  label={category.name}
-                  size="small"
-                  sx={{ 
-                    bgcolor: idx % 2 === 0 ? 'var(--pink)' : 'transparent',
-                    color: idx % 2 === 0 ? 'white' : 'var(--pink)',
-                    border: idx % 2 !== 0 ? '1px solid var(--pink)' : 'none',
-                    fontWeight: 'bold',
-                    fontSize: '0.7rem'
-                  }}
-                />
-              ))}
-            </Box>
-            <Typography 
-              variant="h6" 
-              component="h3"
-              sx={{ 
-                mb: 1.5,
-                fontWeight: 'bold',
-                lineHeight: 1.3,
-                color: 'text.primary',
-                '&:hover': {
-                  color: 'var(--pink)'
-                }
-              }}
-            >
-              {item.title}
-            </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ 
-                mb: 2,
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
-              {item.description}
-            </Typography>
-            <Typography 
-              variant="caption" 
-              color="text.secondary"
-              sx={{ display: 'block', opacity: 0.7 }}
-            >
-              {convertToBrazilianDateWithHours(item.createdAt)}
-            </Typography>
-          </CardContent>
-        </Link>
-      </Card>
-    </Grid>
-  );
+  
 
   return (
     <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100vh" }}>
@@ -278,85 +168,156 @@ export const Home: React.FC = () => {
       </AppBar>
 
       {/* Banner Principal */}
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
-        {loading || !bannerNews ? (
-          <Card>
-            <Skeleton variant="rectangular" height={400} />
-            <CardContent>
-              <Skeleton width="60%" />
-              <Skeleton width="80%" />
-              <Skeleton width="40%" />
-            </CardContent>
-          </Card>
+      <Container maxWidth={false} sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+        {loading ? (
+          <Grid container spacing={3}>
+            <Grid >
+              <Skeleton variant="rectangular" height={400} />
+            </Grid>
+            <Grid >
+              <Grid container spacing={2}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Grid  key={`skeleton-secondary-${i}`}>
+                    <Skeleton variant="rectangular" height={100} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          </Grid>
         ) : (
-          <Card elevation={0} sx={{ position: 'relative', borderRadius: 2 }}>
-            <Link to="/news/$id" params={{ id: bannerNews.documentId }}>
-              <CardMedia
-                component="img"
-                height="400"
-                image={bannerNews.cover?.url || '/default-banner.jpg'}
-                alt={bannerNews.title}
-                sx={{ objectFit: 'cover' }}
-              />
-              <Box sx={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                p: 4,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                borderBottomLeftRadius: 8,
-                borderBottomRightRadius: 8
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Banner Principal (2/3 da largura) */}
+            <Grid >
+              <Card sx={{ 
+                height: '100%', 
+                boxShadow: 'none',
+                bgcolor: 'transparent'
               }}>
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  {bannerNews.categories?.map((category, index) => (
-                    <Chip
-                      key={`banner-category-${index}`}
-                      label={category.name}
-                      size="small"
+                <Link to="/news/$id" params={{ id: featuredNews.main?.documentId }}>
+                  <CardMedia
+                    component="img"
+                    image={featuredNews.main?.cover?.url || '/default-banner.jpg'}
+                    alt={featuredNews.main?.title}
+                    sx={{ 
+                      width: '100%',
+                      height: { xs: '300px', md: '400px' },
+                      borderRadius: 2,
+                      objectFit: 'cover'
+                    }}
+                  />
+                  <Box sx={{ mt: 2 }}>
+                    {featuredNews.main?.categories?.slice(0, 1).map((category: any) => (
+                      <Chip
+                        key={`main-category-${category.slug}`}
+                        label={category.name}
+                        size="small"
+                        sx={{ 
+                          bgcolor: '#3f51b5',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          mb: 1
+                        }}
+                      />
+                    ))}
+                    <Typography 
+                      variant="h3" 
+                      component="h2"
                       sx={{ 
-                        bgcolor: 'var(--pink)',
-                        color: 'white',
-                        fontWeight: 'bold'
+                        color: 'text.primary',
+                        fontWeight: 'bold',
+                        fontSize: { xs: '1.8rem', md: '2.2rem' },
+                        lineHeight: 1.2
                       }}
-                    />
-                  ))}
-                </Box>
-                <Typography 
-                  variant="h3" 
-                  component="h2"
-                  sx={{ 
-                    color: 'white',
-                    fontWeight: 'bold',
-                    textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
-                    mb: 1
-                  }}
-                >
-                  {bannerNews.title}
-                </Typography>
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    color: 'white',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                    mb: 2
-                  }}
-                >
-                  {bannerNews.description}
-                </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: 'white',
-                    display: 'block',
-                    opacity: 0.8
-                  }}
-                >
-                  {convertToBrazilianDateWithHours(bannerNews.publishedAt)}
-                </Typography>
+                    >
+                      {featuredNews.main?.title}
+                    </Typography>
+                  </Box>
+                </Link>
+              </Card>
+            </Grid>
+
+            {/* Notícias Secundárias (1/3 da largura) */}
+            <Grid>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                {featuredNews.secondary.map((item: any) => (
+                  <Card
+                    key={`secondary-${item.id}`}
+                    sx={{
+                      position: 'relative',
+                      height: 200,
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      boxShadow: 'none',
+                      bgcolor: 'transparent',
+                      '&:hover img': {
+                        transform: 'scale(1.05)',
+                      },
+                    }}
+                  >
+                    <Link to="/news/$id" params={{ id: item.documentId }}>
+                      <CardMedia
+                        component="img"
+                        image={item.cover?.url || '/default-news.jpg'}
+                        alt={item.title}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease',
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          p: 2,
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2))',
+                          color: '#fff',
+                        }}
+                      >
+                        {item.categories.slice(0, 1).map((category: any) => (
+                          <Chip
+                            key={`secondary-category-${category.slug}`}
+                            label={category.name}
+                            size="small"
+                            sx={{
+                              bgcolor: '#3f51b5',
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: '0.6rem',
+                              mb: 1,
+                            }}
+                          />
+                        ))}
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontSize: '1rem',
+                            fontWeight: 'bold',
+                            lineHeight: 1.3,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            mt: 1,
+                          }}
+                        >
+                          {item.title}
+                        </Typography>
+                      </Box>
+                    </Link>
+                  </Card>
+                ))}
               </Box>
-            </Link>
-          </Card>
+            </Grid>
+          </Grid>
         )}
       </Container>
 
@@ -402,7 +363,7 @@ export const Home: React.FC = () => {
           {loading 
             ? renderLoadingSkeleton()
             : filteredNews.length > 0 
-              ? filteredNews.map(renderNewsItem)
+              ? filteredNews.map((item: any) => <NewsItemCard key={item.id} item={item} />)
               : (
                 <Grid>
                   <Typography variant="body1" textAlign="center" sx={{ py: 4 }}>
@@ -414,63 +375,7 @@ export const Home: React.FC = () => {
       </Container>
 
       {/* Equipe */}
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Card elevation={0} sx={{ borderRadius: 2 }}>
-          <CardContent>
-            <Typography
-              variant="h5"
-              component="h2"
-              fontWeight="bold"
-              color="var(--pink)"
-              sx={{ mb: 3 }}
-            >
-              Nossa Equipe
-            </Typography>
-            <Grid container spacing={4}>
-              <Grid>
-                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                  Autores
-                </Typography>
-                <List dense>
-                  {TEAM_MEMBERS.authors.map((author, index) => (
-                    <React.Fragment key={`author-${index}`}>
-                      <ListItem disablePadding sx={{ py: 1 }}>
-                        <ListItemText 
-                          primary={author} 
-                          primaryTypographyProps={{ variant: 'body1' }}
-                        />
-                      </ListItem>
-                      {index < TEAM_MEMBERS.authors.length - 1 && (
-                        <Divider component="li" />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </List>
-              </Grid>
-              <Grid>
-                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                  Desenvolvedores
-                </Typography>
-                <List dense>
-                  {TEAM_MEMBERS.developers.map((developer, index) => (
-                    <React.Fragment key={`dev-${index}`}>
-                      <ListItem disablePadding sx={{ py: 1 }}>
-                        <ListItemText 
-                          primary={developer} 
-                          primaryTypographyProps={{ variant: 'body1' }}
-                        />
-                      </ListItem>
-                      {index < TEAM_MEMBERS.developers.length - 1 && (
-                        <Divider component="li" />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </List>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Container>
+      <TeamsMembres/>
 
       {/* Footer */}
       <Box component="footer" sx={{ 
