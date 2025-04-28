@@ -187,7 +187,7 @@ export const Home: React.FC = () => {
             </Grid>
           </Grid>
         ) : (
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={3}>
             {/* Banner Principal (2/3 da largura) */}
             <Grid >
               <Card sx={{ 
@@ -247,7 +247,7 @@ export const Home: React.FC = () => {
                       }}
                     >
                       <Eye />
-                      {featuredNews.main?.views}
+                      {featuredNews.main?.views ?? 0}
                     </Typography>
                   </Box>
                 </Link>
@@ -294,12 +294,12 @@ export const Home: React.FC = () => {
                           height: '100%',
                           display: 'flex',
                           flexDirection: 'column',
-                          justifyContent: 'flex-start',
+                          justifyContent: 'space-between', // <-- alterado aqui
                           alignItems: 'flex-start',
                           background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2))',
                           color: '#fff',
                         }}
-                      >
+                        >
                         {item.categories.slice(0, 1).map((category: any) => (
                           <Chip
                             key={`secondary-category-${category.slug}`}
@@ -333,13 +333,12 @@ export const Home: React.FC = () => {
                           variant="h6" 
                           component="p"
                           sx={{ 
-                            color: 'text.primary',
                             fontWeight: 'normal',
-                            fontSize: { xs: '1.8rem', md: '2.2rem' },
+                            marginBottom: 0,
+                            fontSize: { xs: '1rem', md: '1.5rem' },
                             lineHeight: 1.2
                           }}>
-                            <Eye/>
-                            {item?.views}
+                            <Eye/> {item?.views == null ? 0 : item?.views}
                         </Typography>
                       </Box>
                     </Link>

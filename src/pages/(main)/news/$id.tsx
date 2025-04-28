@@ -28,7 +28,7 @@ import AvatarProfile from "@/assets/img/avatar.jpg";
 import { useAuthStore } from "@/store/Auth";
 import { useCreateComments } from "@/hooks/createComment";
 import { decodeToken } from "@/utils/token";
-import {LogIn} from "lucide-react";
+import {LogIn, Search} from "lucide-react";
 
 export const NewsById = () => {
   const { id } = useParams({ strict: false });
@@ -46,6 +46,7 @@ export const NewsById = () => {
   const [commentsCount, setCommentsCount] = useState(0);
   const [comments, setComments] = useState([]);
   const [category, setCategory] = useState([]);
+  const [author, setAuthor] = useState([])
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export const NewsById = () => {
         setNewsCreatedAt(attributes.createdAt);
         setCategory(attributes.categories); // Pode ser um array também, dependendo de como você quer lidar com isso
         setImageUrl(attributes.cover?.url || ""); // Garante que a URL seja válida
+        setAuthor(attributes?.authors);
         setCommentsCount(commentsCount);
         setComments(comments.map( (c: any) => {
           return {
@@ -117,38 +119,31 @@ export const NewsById = () => {
     >
       {/* Header */}
       <AppBar position="static" color="default" elevation={1}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-            <Typography
-              variant="h6"
-              sx={{ display: "flex", alignItems: "center" }}
-            >
+        <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <img
+              onClick={() => {
+                navigate({ to: "/" });
+              }}
+              style={{ width: "30px", marginRight: "20px", cursor: "pointer" }}
               src={Icon}
-              alt="Logo"
-              onClick={() => navigate({ to: "/" })}
-              style={{ width: 30, marginRight: 20, cursor: "pointer" }}
+              alt="Logo Ninguém Perguntou"
             />
-            NINGUÉM PERGUNTOU
-          </Typography>
-          <IconButton edge="end" color="inherit" onClick={() => navigate({ to: "/auth/login" })}>
-              <LogIn  className="w-6 h-6 text-white" />
-          </IconButton>
+            <Typography variant="h6" component="h1" sx={{ fontWeight: 'bold' }}>
+              NINGUÉM PERGUNTOU
+            </Typography>
+          </Box>
+          
+          <Box>
+            <IconButton sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>
+              <Search className="w-5 h-5" />
+            </IconButton>
+            <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
+              <LogIn className="w-5 h-5" />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
-
-      {/* Section Title */}
-      <Box
-        sx={{
-          bgcolor: "var(--pink)",
-          color: "white",
-          px: 2,
-          py: 1,
-          fontWeight: "bold",
-          width: "100%",
-        }}
-      >
-        Distrito Federal
-      </Box>
 
       {/* Main Content */}
       <Box sx={{ p: 2 }}>

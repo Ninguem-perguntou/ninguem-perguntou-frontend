@@ -98,8 +98,8 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               variant="body2" 
               component="p"
               sx={{ 
-                color: 'text.secondary',
-                fontWeight: 'medium',
+                color: 'text.primary',
+                fontWeight: 'light',
                 fontSize: { xs: '0.9rem', md: '1rem' }, // menor
                 lineHeight: 1.2,
                 display: 'flex',
@@ -108,7 +108,7 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               }}
             >
               <Eye />
-              {item?.views}
+              {item?.views == null ? 0 : item?.views}
             </Typography>
             <Typography 
               variant="caption" 
