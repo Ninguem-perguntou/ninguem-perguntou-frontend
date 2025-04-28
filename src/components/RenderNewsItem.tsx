@@ -1,12 +1,14 @@
 import { Box, Card, CardContent, CardMedia, Chip, Grid, Typography, useTheme } from "@mui/material";
 import { Link } from "@tanstack/react-router";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
+import { Eye } from "lucide-react";
 
 interface NewsItem {
     id: string;
     documentId: string;
     title: string;
     description: string;
+    views: number
     cover?: {
       url: string;
     };
@@ -91,6 +93,22 @@ export const NewsItemCard = ({ item }: { item: NewsItem }) => {
               }}
             >
               {item.description}
+            </Typography>
+            <Typography
+              variant="body2" 
+              component="p"
+              sx={{ 
+                color: 'text.secondary',
+                fontWeight: 'medium',
+                fontSize: { xs: '0.9rem', md: '1rem' }, // menor
+                lineHeight: 1.2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5, // espaço entre o ícone e o número
+              }}
+            >
+              <Eye />
+              {item?.views}
             </Typography>
             <Typography 
               variant="caption" 

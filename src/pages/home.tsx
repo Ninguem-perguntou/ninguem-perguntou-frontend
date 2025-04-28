@@ -24,7 +24,7 @@ import {
 import { useJornals } from "@/hooks/journals";
 import Icon from "@/assets/img/icon.png";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogIn, Search } from "lucide-react";
+import { Eye, LogIn, Search } from "lucide-react";
 import { useCategories } from "@/hooks/categories";
 import { TeamsMembres } from "@/components/TeamsMembres";
 import { NewsItemCard } from "@/components/RenderNewsItem";
@@ -70,6 +70,8 @@ export const Home: React.FC = () => {
     return counts;
   }, [jornalData]);
 
+  console.log(jornalData)
+
   const getGridColumns = () => {
     if (isMobile) return 1;
     if (isTablet) return 2;
@@ -100,7 +102,7 @@ export const Home: React.FC = () => {
     ));
   };
 
-  
+  console.log(featuredNews.main)  
 
   return (
     <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100vh" }}>
@@ -231,6 +233,22 @@ export const Home: React.FC = () => {
                     >
                       {featuredNews.main?.title}
                     </Typography>
+                    <Typography
+                      variant="body2" 
+                      component="p"
+                      sx={{ 
+                        color: 'text.secondary',
+                        fontWeight: 'medium',
+                        fontSize: { xs: '0.9rem', md: '1rem' }, // menor
+                        lineHeight: 1.2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5, // espaço entre o ícone e o número
+                      }}
+                    >
+                      <Eye />
+                      {featuredNews.main?.views}
+                    </Typography>
                   </Box>
                 </Link>
               </Card>
@@ -310,6 +328,18 @@ export const Home: React.FC = () => {
                           }}
                         >
                           {item.title}
+                        </Typography>
+                        <Typography
+                          variant="h6" 
+                          component="p"
+                          sx={{ 
+                            color: 'text.primary',
+                            fontWeight: 'normal',
+                            fontSize: { xs: '1.8rem', md: '2.2rem' },
+                            lineHeight: 1.2
+                          }}>
+                            <Eye/>
+                            {item?.views}
                         </Typography>
                       </Box>
                     </Link>
