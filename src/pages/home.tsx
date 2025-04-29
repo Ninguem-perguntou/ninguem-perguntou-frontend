@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   AppBar,
   Toolbar,
@@ -8,10 +8,6 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
   Skeleton,
   Button,
   Chip,
@@ -72,37 +68,15 @@ export const Home: React.FC = () => {
 
   console.log(jornalData)
 
-  const getGridColumns = () => {
-    if (isMobile) return 1;
-    if (isTablet) return 2;
-    return 3;
-  };
+  // const getGridColumns = () => {
+  //   if (isMobile) return 1;
+  //   if (isTablet) return 2;
+  //   return 3;
+  // };
 
   const handleCategoryClick = (slug: string) => {
     setSelectedCategory(prev => prev === slug ? null : slug);
   };
-
-  const renderLoadingSkeleton = () => {
-    const columns = getGridColumns();
-    return Array.from({ length: columns * 2 }).map((_, index) => (
-      <Grid key={`skeleton-${index}`}>
-        <Card sx={{ height: '100%' }}>
-          <Skeleton variant="rectangular" height={160} />
-          <CardContent>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <Skeleton width="30%" height={24} />
-              <Skeleton width="20%" height={24} />
-            </Box>
-            <Skeleton width="90%" height={32} sx={{ mb: 1 }} />
-            <Skeleton width="80%" height={20} sx={{ mb: 1 }} />
-            <Skeleton width="60%" height={16} />
-          </CardContent>
-        </Card>
-      </Grid>
-    ));
-  };
-
-  console.log(featuredNews.main)  
 
   return (
     <Box sx={{ bgcolor: "#f3f4f6", minHeight: "100vh" }}>
@@ -170,7 +144,12 @@ export const Home: React.FC = () => {
       </AppBar>
 
       {/* Banner Principal */}
-      <Container maxWidth={false} sx={{ py: 4, width: 1 }}>
+      <Container maxWidth={false} sx={{
+        py: 4,
+        width: 1,
+        display: 'flex',
+        justifyContent: 'center',
+      }}>
         {loading ? (
           <Grid container spacing={3}>
             <Grid >
@@ -352,7 +331,14 @@ export const Home: React.FC = () => {
 
       {/* Últimas Notícias */}
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 4,
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 2, sm: 0 }
+        }}>
           <Typography 
             variant="h4" 
             component="h2"
@@ -388,19 +374,48 @@ export const Home: React.FC = () => {
           )}
         </Box>
         
-        <Grid container spacing={3}>
-          {loading 
-            ? renderLoadingSkeleton()
-            : filteredNews.length > 0 
-              ? filteredNews.map((item: any) => <NewsItemCard key={item.id} item={item} />)
-              : (
-                <Grid>
-                  <Typography variant="body1" textAlign="center" sx={{ py: 4 }}>
-                    Nenhuma notícia encontrada nesta categoria.
-                  </Typography>
-                </Grid>
-              )}
-        </Grid>
+        {loading ? (
+          <Grid container spacing={3}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Grid size={{xs:12, md:4, sm:6}} key={`skeleton-${index}`}>
+                <Card sx={{ height: '100%' }}>
+                  <Skeleton variant="rectangular" height={160} />
+                  <CardContent>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                      <Skeleton width="30%" height={24} />
+                      <Skeleton width="20%" height={24} />
+                    </Box>
+                    <Skeleton width="90%" height={32} sx={{ mb: 1 }} />
+                    <Skeleton width="80%" height={20} sx={{ mb: 1 }} />
+                    <Skeleton width="60%" height={16} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : filteredNews.length > 0 ? (
+          <Grid container spacing={3}>
+            {filteredNews.map((item: any) => (
+              <Grid size={{xs:12, md:4, sm:6}} key={item.id}>
+                <NewsItemCard item={item} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '200px',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            p: 4
+          }}>
+            <Typography variant="h6" color="text.secondary">
+              Nenhuma notícia encontrada{selectedCategory ? ' nesta categoria' : ''}.
+            </Typography>
+          </Box>
+        )}
       </Container>
 
       {/* Equipe */}
