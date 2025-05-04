@@ -15,6 +15,9 @@ import {
   TextField,
   Button,
   Container,
+  useMediaQuery,
+  useTheme,
+  Chip,
 } from "@mui/material";
 import { convertToBrazilianDateWithHours } from "@/utils/data";
 import { BlocksRenderer, type BlocksContent } from "@/components/index";
@@ -62,6 +65,9 @@ export const NewsById = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { categoriesData } = useCategories();
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     if (newsData) {
@@ -126,13 +132,7 @@ export const NewsById = () => {
   };
 
   return (
-    <section
-      style={{
-        height: "100%",
-        width: "100%",
-        boxSizing: "border-box",
-      }}
-    >
+    <Box sx={{ height: "100%", width: "100%" }}>
       {/* Header */}
       <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #e0e0e0' }}>
         <Container maxWidth="lg">
@@ -247,12 +247,77 @@ export const NewsById = () => {
 
       {/* Main Content */}
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} direction={isMobile ? "column-reverse" : "row"}>
+          {/* Coluna lateral (notícias relacionadas) - Movida para baixo em mobile */}
+          <Grid size={{xs:12, md:4}}>
+            {newsByCategoryData && newsByCategoryData.data.length > 1 && (
+              <Box sx={{ 
+                position: isMobile ? "relative" : "sticky",
+                top: isMobile ? 0 : 20,
+                mb: isMobile ? 3 : 0
+              }}>
+                <Typography variant="h5" gutterBottom fontWeight="bold">
+                  Notícias Relacionadas
+                </Typography>
+                <Grid container spacing={2}>
+                  {newsByCategoryData.data
+                    .filter((n: any) => n.id !== id)
+                    .slice(0, 4)
+                    .map((related: any) => (
+                      <Grid size={{xs:12}} key={related.id}>
+                        <Card
+                          sx={{
+                            cursor: "pointer",
+                            display: "flex",
+                            flexDirection: isMobile ? "row" : "column",
+                            height: "100%",
+                            '&:hover': {
+                              boxShadow: isMobile ? 'none' : '0 4px 8px rgba(0,0,0,0.1)'
+                            }
+                          }}
+                          onClick={() => navigate({ to: `/news/${related.documentId}` })}
+                        >
+                          <CardMedia
+                            component="img"
+                            height={isMobile ? "100" : "140"}
+                            width={isMobile ? "120" : "100%"}
+                            image={related.cover?.url || ""}
+                            alt={related.title}
+                            sx={{ 
+                              objectFit: "cover",
+                              flex: isMobile ? "0 0 120px" : "1"
+                            }}
+                          />
+                          <CardContent sx={{ flex: 1 }}>
+                            <Typography 
+                              variant="body2" 
+                              fontWeight="bold" 
+                              sx={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {related.title}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {convertToBrazilianDateWithHours(related.createdAt)}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                </Grid>
+              </Box>
+            )}
+          </Grid>
+
           {/* Coluna principal (conteúdo da notícia) */}
-          <Grid size={8}>
+          <Grid size={{xs:12, md:8}}>
             {loading ? (
               <Card>
-                <Skeleton variant="rectangular" height={200} />
+                <Skeleton variant="rectangular" height={300} />
                 <CardContent>
                   <Skeleton variant="text" width="40%" />
                   <Skeleton variant="text" width="60%" />
@@ -266,48 +331,50 @@ export const NewsById = () => {
                   display: "flex",
                   flexDirection: "column",
                   overflowX: "hidden",
+                  mb: 3
                 }}
               >
                 <CardMedia
                   component="img"
-                  height="300"
+                  height={isMobile ? "200" : "300"}
                   image={imageUrl}
                   alt="news"
                   sx={{ objectFit: "cover", width: "100%" }}
                 />
                 <CardContent>
-                  <section style={{ display: "flex", flexDirection: "column" }}>
-                    <section style={{ display: "flex", gap: "5px" }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", mb: 2 }}>
+                    <Box sx={{ display: "flex", gap: "5px", flexWrap: 'wrap' }}>
                       {category?.map((cat: any, index: number) => (
-                        <Typography
+                        <Chip
                           key={index}
-                          variant="caption"
-                          color="var(--pink)"
-                          fontWeight="bold"
-                        >
-                          {index === category.length - 1
-                            ? cat.name
-                            : `${cat.name},`}
-                        </Typography>
+                          label={cat.name}
+                          size="small"
+                          sx={{ 
+                            bgcolor: '#ff007a',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            mb: 1
+                          }}
+                        />
                       ))}
-                    </section>
+                    </Box>
 
                     <Typography variant="caption" color="textSecondary">
                       {convertToBrazilianDateWithHours(newsCreatedAt)}
                     </Typography>
-                  </section>
-                  <Typography variant="h6" gutterBottom>
+                  </Box>
+                  <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
                     {newsTitle}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                  <Typography variant="body1" color="textSecondary" gutterBottom sx={{ mb: 3 }}>
                     {newsDescription}
                   </Typography>
 
-                    {author.map((a: any) => (
-                      <Typography variant="body2" color="textPrimary" gutterBottom>
-                      {a?.name}
-                      </Typography>
-                    ))}
+                  {author.map((a: any, index: number) => (
+                    <Typography key={index} variant="body2" color="textPrimary" gutterBottom>
+                      Por: {a?.name}
+                    </Typography>
+                  ))}
 
                   {/* Dynamic CMS Content */}
                   <Box
@@ -315,7 +382,7 @@ export const NewsById = () => {
                       mt: 2,
                       "& p": {
                         lineHeight: 1.8,
-                        fontSize: "1.2rem",
+                        fontSize: "1.1rem",
                         mb: 2,
                         textAlign: "justify",
                       },
@@ -355,12 +422,13 @@ export const NewsById = () => {
                 </CardContent>
               </Card>
             )}
-              {/* Seção de comentários */}
-              <Box sx={{ mt: 3 }}>
-              <h1 style={{ fontWeight: "bold", marginBottom: "20px" }}>
+            
+            {/* Seção de comentários */}
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="h5" gutterBottom fontWeight="bold">
                 Comentários ({commentsCount})
-              </h1>
-              <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+              </Typography>
+              <Box sx={{ maxHeight: "400px", overflowY: "auto", mb: 3 }}>
                 {comments.map((comment: any) => (
                   <Paper
                     key={comment?.documentId}
@@ -379,7 +447,7 @@ export const NewsById = () => {
                           sx={{ width: 40, height: 40 }}
                         />
                       </Grid>
-                      <Grid>
+                      <Grid size={{xs:12}}>
                         <Typography variant="body1" fontWeight="bold">
                           {comment?.user.username}
                         </Typography>
@@ -397,11 +465,11 @@ export const NewsById = () => {
                     </Grid>
                   </Paper>
                 ))}
-              </div>
+              </Box>
 
               {/* Formulário de comentário */}
               {token ? (
-                <div style={{ marginTop: 20 }}>
+                <Box>
                   <TextField
                     label="Adicionar comentário"
                     fullWidth
@@ -416,67 +484,31 @@ export const NewsById = () => {
                     variant="contained"
                     color="primary"
                     disabled={loadingCreateComment}
-                    style={{ marginTop: 10 }}
+                    sx={{ mt: 2 }}
+                    size="large"
                   >
                     Adicionar Comentário
                   </Button>
-                </div>
+                </Box>
               ) : (
-                <div style={{ marginTop: 20 }}>
+                <Box sx={{ textAlign: 'center', py: 2 }}>
                   <Typography variant="body2" color="textSecondary">
                     Você precisa estar logado para adicionar um comentário.
                   </Typography>
-                </div>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    sx={{ mt: 2 }}
+                    onClick={() => navigate({ to: "/auth/login" })}
+                  >
+                    Fazer Login
+                  </Button>
+                </Box>
               )}
-              </Box>
-          </Grid>
-
-          {/* Coluna lateral (notícias relacionadas) */}
-          <Grid size={4}>
-            {newsByCategoryData && newsByCategoryData.data.length > 1 && (
-              <Box sx={{ position: "sticky", top: 20 }}>
-                <Typography variant="h5" gutterBottom fontWeight="bold">
-                  Notícias Relacionadas
-                </Typography>
-                <Grid container spacing={2}>
-                  {newsByCategoryData.data
-                    .filter((n: any) => n.id !== id)
-                    .slice(0, 4)
-                    .map((related: any) => (
-                      <Grid key={related.id}>
-                        <Card
-                          sx={{
-                            cursor: "pointer",
-                            display: "flex",
-                            flexDirection: "column",
-                            height: "100%",
-                          }}
-                          onClick={() => navigate({ to: `/news/${related.documentId}` })}
-                        >
-                          <CardMedia
-                            component="img"
-                            height="140"
-                            image={related.cover?.url || ""}
-                            alt={related.title}
-                            sx={{ objectFit: "cover" }}
-                          />
-                          <CardContent>
-                            <Typography variant="body2" fontWeight="bold" noWrap>
-                              {related.title}
-                            </Typography>
-                            <Typography variant="caption" color="textSecondary">
-                              {convertToBrazilianDateWithHours(related.createdAt)}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      </Grid>
-                    ))}
-                </Grid>
-              </Box>
-            )}
+            </Box>
           </Grid>
         </Grid>
       </Container>
-    </section>
+    </Box>
   );
 };
