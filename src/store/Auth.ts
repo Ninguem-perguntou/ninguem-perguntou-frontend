@@ -14,7 +14,12 @@ export const useAuthStore = create<AuthState>()((set, get) => {
     setUser: (user) => set({ user }),
 
     setAuthData: (user, token) => {
-      localStorage.setItem(ACCESS_TOKEN_KEY, token)
+      if(!token)
+        localStorage.setItem(ACCESS_TOKEN_KEY, token)
+      else{
+        localStorage.removeItem(ACCESS_TOKEN_KEY)
+        localStorage.setItem(ACCESS_TOKEN_KEY, token)
+      }
       set({
         user,
         accessToken: token,
