@@ -14,7 +14,6 @@ import {
   Chip,
   Container,
   Grid,
-  Pagination,
   PaginationItem,
 } from "@mui/material";
 import { useJornals } from "@/hooks/journals";
