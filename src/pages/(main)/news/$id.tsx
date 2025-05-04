@@ -194,6 +194,10 @@ export const NewsById = () => {
               <IconButton sx={{ color: '#000' }}>
                 <Search className="w-5 h-5" />
               </IconButton>
+
+              <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
+                <LogIn className="w-5 h-5" />
+              </IconButton>
             </Box>
             
             <IconButton 
@@ -201,9 +205,6 @@ export const NewsById = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="w-6 h-6" />
-            </IconButton>
-            <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
-              <LogIn className="w-5 h-5" />
             </IconButton>
           </Toolbar>
         </Container>

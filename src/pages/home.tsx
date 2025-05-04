@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   AppBar,
   Toolbar,
@@ -13,14 +14,16 @@ import {
   Chip,
   Container,
   Grid,
-  Divider,
-  TextField,
+  Pagination,
+  PaginationItem,
 } from "@mui/material";
 import { useJornals } from "@/hooks/journals";
 import Icon from "@/assets/img/icon.png";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Eye, LogIn, Search, Menu, Facebook, Instagram, Twitter } from "lucide-react";
+import { Eye, LogIn, Search, Menu} from "lucide-react";
 import { useCategories } from "@/hooks/categories";
+import { Footer } from "@/components/Footer";
+import { Newsletter } from "@/components/Newsletter";
 
 export const Home: React.FC = () => {
   const { jornalData, loading } = useJornals();
@@ -44,6 +47,11 @@ export const Home: React.FC = () => {
   //   );
   // }, [jornalData, selectedCategory]);
 
+  const allPosts = useMemo(() => {
+    if (!jornalData?.data.data) return [];
+    return jornalData.data.data;
+  }, [jornalData]);
+
   const handleCategoryClick = (slug: string) => {
     setSelectedCategory(prev => prev === slug ? null : slug);
     setMobileMenuOpen(false);
@@ -64,6 +72,115 @@ export const Home: React.FC = () => {
       comment: "Um site essencial para a comunidade LGBTQIA+. Parabéns!"
     }
   ];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6; // Número de posts por página
+
+  // Calcular posts paginados
+  const paginatedPosts = useMemo(() => {
+    if (!allPosts.length) return [];
+    const startIndex = (currentPage - 1) * postsPerPage;
+    return allPosts.slice(startIndex, startIndex + postsPerPage);
+  }, [allPosts, currentPage]);
+
+  // Calcular número total de páginas
+  const totalPages = Math.ceil(allPosts.length / postsPerPage);
+
+  // Função para renderizar a paginação com no máximo 5 itens
+  const renderPagination = () => {
+    const maxVisiblePages = 5;
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      const half = Math.floor(maxVisiblePages / 2);
+      startPage = Math.max(currentPage - half, 1);
+      endPage = Math.min(currentPage + half, totalPages);
+
+      if (currentPage <= half + 1) {
+        endPage = maxVisiblePages;
+      } else if (currentPage >= totalPages - half) {
+        startPage = totalPages - maxVisiblePages + 1;
+      }
+    }
+
+    const pages = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <PaginationItem
+          key={i}
+          page={i}
+          selected={i === currentPage}
+          onClick={() => setCurrentPage(i)}
+          sx={{
+            fontWeight: i === currentPage ? 'bold' : 'normal',
+            backgroundColor: i === currentPage ? '#ff007a' : 'transparent',
+            color: i === currentPage ? 'white' : 'inherit',
+            '&:hover': {
+              backgroundColor: i === currentPage ? '#e0006a' : '#f5f5f5'
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        {/* Botão Anterior */}
+        <IconButton
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+          sx={{
+            border: '1px solid #e0e0e0',
+            borderRadius: '50%',
+            width: 36,
+            height: 36
+          }}
+        >
+          <ChevronLeft />
+        </IconButton>
+
+        {/* Páginas */}
+        {startPage > 1 && (
+          <>
+            <PaginationItem
+              page={1}
+              selected={1 === currentPage}
+              onClick={() => setCurrentPage(1)}
+            />
+            {startPage > 2 && <Typography sx={{ px: 1 }}>...</Typography>}
+          </>
+        )}
+
+        {pages}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <Typography sx={{ px: 1 }}>...</Typography>}
+            <PaginationItem
+              page={totalPages}
+              selected={totalPages === currentPage}
+              onClick={() => setCurrentPage(totalPages)}
+            />
+          </>
+        )}
+
+        {/* Botão Próximo */}
+        <IconButton
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+          sx={{
+            border: '1px solid #e0e0e0',
+            borderRadius: '50%',
+            width: 36,
+            height: 36
+          }}
+        >
+          <ChevronRight />
+        </IconButton>
+      </Box>
+    );
+  };
 
   return (
     <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh" }}>
@@ -128,6 +245,10 @@ export const Home: React.FC = () => {
               <IconButton sx={{ color: '#000' }}>
                 <Search className="w-5 h-5" />
               </IconButton>
+
+              <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
+                <LogIn className="w-5 h-5" />
+              </IconButton>
             </Box>
             
             <IconButton 
@@ -135,9 +256,6 @@ export const Home: React.FC = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu className="w-6 h-6" />
-            </IconButton>
-            <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
-              <LogIn className="w-5 h-5" />
             </IconButton>
           </Toolbar>
         </Container>
@@ -356,13 +474,13 @@ export const Home: React.FC = () => {
               }}>
                 Sobre Nós
               </Typography>
-              <Typography paragraph sx={{ mb: 2 }}>
+              <Typography  sx={{ mb: 2 }}>
                 O 'Ninguém Perguntou' é um site de jornalismo online dedicado ao
                 público LGBTQIA+ e mulheres de 18 a 50 anos. Abordamos temas
                 relevantes como saúde, cultura pop e destacamos mulheres
                 inspiradoras na sociedade.
               </Typography>
-              <Typography paragraph>
+              <Typography >
                 Nosso objetivo é ampliar a base de assinantes da newsletter, promover 
                 interação nas redes sociais e estabelecer parcerias de apoio. Buscamos 
                 oferecer um ambiente descontraído para desmitificar tabus.
@@ -381,12 +499,12 @@ export const Home: React.FC = () => {
                 }}>
                   FAQ AMOROSO
                 </Typography>
-                <Typography paragraph sx={{ mb: 2 }}>
+                <Typography  sx={{ mb: 2 }}>
                   Somos um podcast voltado para o público feminino e LGBTQIA+. Formado 
                   por dois integrantes que cresceram lendo a revista Capricho e que 
                   adoram ficar jogando um bom papo fora sobre temas variados.
                 </Typography>
-                <Typography paragraph sx={{ mb: 3 }}>
+                <Typography  sx={{ mb: 3 }}>
                   Temos a missão de fazer com que esse podcast seja um lugar confiável 
                   e seguro para falarmos de assuntos desse nosso universo e que ninguém 
                   pergunta.
@@ -448,158 +566,167 @@ export const Home: React.FC = () => {
         </Grid>
       </Container>
 
-      {/* Newsletter */}
-      <Box sx={{ bgcolor: '#ff007a', py: 6 }}>
-        <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" component="h2" sx={{ 
-            fontWeight: 'bold',
-            mb: 2,
-            color: '#fff'
-          }}>
-            Fique Por Dentro
-          </Typography>
-          <Typography sx={{ 
-            mb: 4,
-            color: 'rgba(255,255,255,0.9)'
-          }}>
-            Assine nossa newsletter para receber as últimas notícias e atualizações.
-          </Typography>
-          
-          <Box component="form" sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 2,
-            justifyContent: 'center'
-          }}>
-            <TextField
-              placeholder="Seu e-mail"
-              variant="outlined"
-              size="small"
-              sx={{ 
-                bgcolor: '#fff',
-                borderRadius: 1,
-                flexGrow: { sm: 1 },
-                maxWidth: { sm: '400px' },
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 1
-                }
-              }}
-            />
-            <Button 
-              variant="contained" 
-              sx={{ 
-                bgcolor: '#000',
-                color: '#fff',
-                fontWeight: 'bold',
-                '&:hover': { bgcolor: '#333' },
-                whiteSpace: 'nowrap'
-              }}
-            >
-              Assinar Newsletter
-            </Button>
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Footer */}
-      <Box component="footer" sx={{ 
-        bgcolor: '#000',
-        color: '#fff',
-        py: 6
-      }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid size={{xs:12, md:6}}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <img
-                  src={Icon}
-                  alt="Logo Ninguém Perguntou"
-                  style={{ 
-                    width: '40px', 
-                    height: '40px',
-                    marginRight: '15px',
-                    borderRadius: '50%',
-                    border: '2px solid #fff'
+      {/* Seção Todos os Posts */}
+<Container maxWidth="lg" sx={{ py: 6 }}>
+  <Typography variant="h4" component="h2" sx={{ 
+    fontWeight: 'bold',
+    mb: 4,
+    textAlign: 'center',
+    color: '#ff007a',
+    position: 'relative',
+    '&:after': {
+      content: '""',
+      display: 'block',
+      width: '80px',
+      height: '4px',
+      bgcolor: '#ff007a',
+      mx: 'auto',
+      mt: 2
+    }
+  }}>
+    Todos os Posts
+  </Typography>
+  
+  {loading ? (
+    <Grid container spacing={3}>
+      {Array.from({ length: postsPerPage }).map((_, index) => (
+        <Grid size={{xs:12, sm:6, md:4}} key={`post-skeleton-${index}`}>
+          <Card sx={{ height: '100%', boxShadow: 'none', border: '1px solid #e0e0e0' }}>
+            <Skeleton variant="rectangular" height={200} />
+            <CardContent>
+              <Skeleton width="30%" height={24} sx={{ mb: 1 }} />
+              <Skeleton width="90%" height={28} sx={{ mb: 1 }} />
+              <Skeleton width="80%" height={20} />
+              <Skeleton width="60%" height={16} sx={{ mt: 2 }} />
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  ) : (
+    <>
+      <Grid container spacing={3}>
+        {paginatedPosts.map((post: any) => (
+          <Grid size={{xs:12, sm:6, md:4}} key={post.id}>
+            <Card sx={{ 
+              height: '100%',
+              boxShadow: 'none',
+              border: '1px solid #e0e0e0',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
+              }
+            }}>
+              <Link to="/news/$id" params={{ id: post.documentId }}>
+                <CardMedia
+                  component="img"
+                  image={post.cover?.url || '/default-news.jpg'}
+                  alt={post.title}
+                  sx={{ 
+                    width: '100%',
+                    height: '200px',
+                    objectFit: 'cover'
                   }}
                 />
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  NINGUÉM PERGUNTOU
-                </Typography>
-              </Box>
-              <Typography sx={{ mb: 2 }}>
-                niguemperguntou@gmail.com<br />
-                Brasília-DF
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <IconButton sx={{ color: '#fff' }}>
-                  <Facebook />
-                </IconButton>
-                <IconButton sx={{ color: '#fff' }}>
-                  <Instagram />
-                </IconButton>
-                <IconButton sx={{ color: '#fff' }}>
-                  <Twitter />
-                </IconButton>
-              </Box>
-            </Grid>
-            <Grid size={{xs:12, md:6}}>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 'bold',
-                mb: 2
-              }}>
-                Conecte-se Conosco
-              </Typography>
-              <Box component="form">
-                <TextField
-                  placeholder="Seu e-mail"
-                  variant="outlined"
-                  size="small"
-                  fullWidth
-                  sx={{ 
-                    bgcolor: '#fff',
-                    borderRadius: 1,
-                    mb: 2,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 1
-                    }
-                  }}
-                />
-                <Button 
-                  variant="contained" 
-                  sx={{ 
-                    bgcolor: '#ff007a',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    '&:hover': { bgcolor: '#e0006a' }
-                  }}
-                >
-                  Enviar
-                </Button>
-              </Box>
-            </Grid>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                    {post.categories?.slice(0, 2).map((category: any) => (
+                      <Chip
+                        key={category.slug}
+                        label={category.name}
+                        size="small"
+                        sx={{ 
+                          bgcolor: '#ff007a',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '0.65rem'
+                        }}
+                      />
+                    ))}
+                  </Box>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem',
+                      lineHeight: 1.3,
+                      mb: 1,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      minHeight: '56px'
+                    }}
+                  >
+                    {post.title}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{ 
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      mb: 2,
+                      minHeight: '60px'
+                    }}
+                  >
+                    {post.description || 'Confira este post interessante!'}
+                  </Typography>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mt: 2
+                  }}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        color: '#666',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                      }}
+                    >
+                      <Eye size={16} /> {post.views || 0}
+                    </Typography>
+                    <Button
+                      size="small"
+                      sx={{ 
+                        color: '#ff007a',
+                        fontWeight: 'bold',
+                        textTransform: 'none'
+                      }}
+                    >
+                      Ler mais
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Link>
+            </Card>
           </Grid>
-          <Divider sx={{ my: 4, bgcolor: 'rgba(255,255,255,0.1)' }} />
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2
-          }}>
-            <Typography variant="body2">
-              © {new Date().getFullYear()} Ninguém Perguntou. Todos os direitos reservados.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 3 }}>
-              <Typography variant="body2" sx={{ textDecoration: 'underline' }}>
-                Política de Privacidade
-              </Typography>
-              <Typography variant="body2" sx={{ textDecoration: 'underline' }}>
-                Declaração de acessibilidade
-              </Typography>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+        ))}
+      </Grid>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: 6,
+        }}>
+          {renderPagination()}
+        </Box>
+      )}
+    </>
+  )}
+</Container>
+
+      <Newsletter/>
+
+      <Footer/>
     </Box>
   );
 };
