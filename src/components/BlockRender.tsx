@@ -118,7 +118,7 @@ interface ComponentsContextValue {
 
 const defaultComponents: ComponentsContextValue = {
   blocks: {
-    paragraph: (props) => <p>{props.children}</p>,
+    paragraph: (props) => <p style={{ fontWeight: 'normal' }}>{props.children}</p>,
     quote: (props) => <blockquote>{props.children}</blockquote>,
     code: (props) => (
       <pre>

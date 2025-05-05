@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
   IconButton,
   Box,
@@ -17,44 +15,37 @@ import {
   PaginationItem,
 } from "@mui/material";
 import { useJornals } from "@/hooks/journals";
-import Icon from "@/assets/img/icon.png";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Eye, LogIn, Search, Menu} from "lucide-react";
+import { Eye} from "lucide-react";
 import { useCategories } from "@/hooks/categories";
 import { Footer } from "@/components/Footer";
 import { Newsletter } from "@/components/Newsletter";
+import { Header } from "@/components/AppBar";
 
 export const Home: React.FC = () => {
   const { jornalData, loading } = useJornals();
   const { categoriesData } = useCategories();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  //const theme = useTheme();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const featuredNews = useMemo(() => {
     if (!jornalData?.data.data) return { main: null, secondary: [] };
-    const [main, ...remaining] = jornalData.data.data;
-    return { main, secondary: remaining.slice(0, 4) };
-  }, [jornalData]);
-
-  // const filteredNews = useMemo(() => {
-  //   if (!jornalData?.data.data) return [];
-  //   if (!selectedCategory) return jornalData.data.data.slice(5);
-  //   return jornalData.data.data.filter((news: any) => 
-  //     news.categories.some((cat: any) => cat.slug === selectedCategory)
-  //   );
-  // }, [jornalData, selectedCategory]);
+    
+    // Ordena as notícias por views (do maior para o menor)
+    const sortedByViews = [...jornalData.data.data].sort((a, b) => b.views - a.views);
+    
+    // Pega a notícia mais vista (main) e as 4 próximas mais vistas (secondary)
+    const [main, ...secondary] = sortedByViews;
+    
+    return { 
+        main, 
+        secondary: secondary.slice(0, 4) 
+    };
+}, [jornalData]);
 
   const allPosts = useMemo(() => {
     if (!jornalData?.data.data) return [];
     return jornalData.data.data;
   }, [jornalData]);
-
-  const handleCategoryClick = (slug: string) => {
-    setSelectedCategory(prev => prev === slug ? null : slug);
-    setMobileMenuOpen(false);
-  };
 
   // Dados de exemplo para depoimentos
   const testimonials = [
@@ -184,116 +175,7 @@ export const Home: React.FC = () => {
   return (
     <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh" }}>
       {/* Header */}
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #e0e0e0' }}>
-        <Container maxWidth="lg">
-          <Toolbar sx={{ 
-            justifyContent: "space-between", 
-            py: 2,
-            px: '0 !important'
-          }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img
-                onClick={() => navigate({ to: "/" })}
-                style={{ 
-                  width: "40px", 
-                  height: "40px",
-                  marginRight: "15px", 
-                  cursor: "pointer",
-                  borderRadius: '50%',
-                  border: '2px solid #000'
-                }}
-                src={Icon}
-                alt="Logo Ninguém Perguntou"
-              />
-              <Typography 
-                variant="h6" 
-                component="h1" 
-                sx={{ 
-                  fontWeight: 'bold',
-                  fontSize: '1.5rem',
-                  color: '#000'
-                }}
-              >
-                NINGUÉM PERGUNTOU
-              </Typography>
-            </Box>
-            
-            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2, alignItems: 'center' }}>
-              {categoriesData?.data.data.map((category: any) => (
-                <Button 
-                  key={category.slug}
-                  onClick={() => handleCategoryClick(category.slug)}
-                  sx={{ 
-                    color: selectedCategory === category.slug ? '#ff007a' : '#000',
-                    textTransform: 'uppercase',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    letterSpacing: '1px',
-                    px: 1,
-                    minWidth: 'auto',
-                    '&:hover': {
-                      color: '#ff007a',
-                      backgroundColor: 'transparent'
-                    }
-                  }}
-                >
-                  {category.name}
-                </Button>
-              ))}
-              
-              <IconButton sx={{ color: '#000' }}>
-                <Search className="w-5 h-5" />
-              </IconButton>
-
-              <IconButton edge="end" onClick={() => navigate({ to: "/auth/login" })}>
-                <LogIn className="w-5 h-5" />
-              </IconButton>
-            </Box>
-            
-            <IconButton 
-              sx={{ display: { xs: 'flex', md: 'none' }, color: '#000' }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <Menu className="w-6 h-6" />
-            </IconButton>
-          </Toolbar>
-        </Container>
-        
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <Box sx={{ 
-            display: { xs: 'block', md: 'none' },
-            bgcolor: '#fff',
-            px: 2,
-            py: 1,
-            borderTop: '1px solid #e0e0e0'
-          }}>
-            {categoriesData?.data.data.map((category: any) => (
-              <Button 
-                key={`mobile-${category.slug}`}
-                fullWidth
-                onClick={() => handleCategoryClick(category.slug)}
-                sx={{ 
-                  color: selectedCategory === category.slug ? '#ff007a' : '#000',
-                  textTransform: 'uppercase',
-                  fontSize: '0.75rem',
-                  fontWeight: 'bold',
-                  letterSpacing: '1px',
-                  justifyContent: 'flex-start',
-                  px: 1,
-                  py: 2,
-                  '&:hover': {
-                    color: '#ff007a',
-                    backgroundColor: 'transparent'
-                  }
-                }}
-              >
-                {category.name}
-              </Button>
-            ))}
-          </Box>
-        )}
-      </AppBar>
+      <Header/>
 
       {/* Banner de Boas-Vindas */}
       <Box sx={{ 
@@ -510,6 +392,7 @@ export const Home: React.FC = () => {
                 </Typography>
                 <Button 
                   variant="contained" 
+                  onClick={() => navigate({to: "/podcast"})}
                   sx={{ 
                     bgcolor: '#ff007a',
                     '&:hover': { bgcolor: '#e0006a' },
@@ -566,162 +449,162 @@ export const Home: React.FC = () => {
       </Container>
 
       {/* Seção Todos os Posts */}
-<Container maxWidth="lg" sx={{ py: 6 }}>
-  <Typography variant="h4" component="h2" sx={{ 
-    fontWeight: 'bold',
-    mb: 4,
-    textAlign: 'center',
-    color: '#ff007a',
-    position: 'relative',
-    '&:after': {
-      content: '""',
-      display: 'block',
-      width: '80px',
-      height: '4px',
-      bgcolor: '#ff007a',
-      mx: 'auto',
-      mt: 2
-    }
-  }}>
-    Todos os Posts
-  </Typography>
-  
-  {loading ? (
-    <Grid container spacing={3}>
-      {Array.from({ length: postsPerPage }).map((_, index) => (
-        <Grid size={{xs:12, sm:6, md:4}} key={`post-skeleton-${index}`}>
-          <Card sx={{ height: '100%', boxShadow: 'none', border: '1px solid #e0e0e0' }}>
-            <Skeleton variant="rectangular" height={200} />
-            <CardContent>
-              <Skeleton width="30%" height={24} sx={{ mb: 1 }} />
-              <Skeleton width="90%" height={28} sx={{ mb: 1 }} />
-              <Skeleton width="80%" height={20} />
-              <Skeleton width="60%" height={16} sx={{ mt: 2 }} />
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
-  ) : (
-    <>
-      <Grid container spacing={3}>
-        {paginatedPosts.map((post: any) => (
-          <Grid size={{xs:12, sm:6, md:4}} key={post.id}>
-            <Card sx={{ 
-              height: '100%',
-              boxShadow: 'none',
-              border: '1px solid #e0e0e0',
-              transition: 'transform 0.3s, box-shadow 0.3s',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
-              }
-            }}>
-              <Link to="/news/$id" params={{ id: post.documentId }}>
-                <CardMedia
-                  component="img"
-                  image={post.cover?.url || '/default-news.jpg'}
-                  alt={post.title}
-                  sx={{ 
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover'
-                  }}
-                />
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                    {post.categories?.slice(0, 2).map((category: any) => (
-                      <Chip
-                        key={category.slug}
-                        label={category.name}
-                        size="small"
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Typography variant="h4" component="h2" sx={{ 
+          fontWeight: 'bold',
+          mb: 4,
+          textAlign: 'center',
+          color: '#ff007a',
+          position: 'relative',
+          '&:after': {
+            content: '""',
+            display: 'block',
+            width: '80px',
+            height: '4px',
+            bgcolor: '#ff007a',
+            mx: 'auto',
+            mt: 2
+          }
+        }}>
+          Todos os Posts
+        </Typography>
+        
+        {loading ? (
+          <Grid container spacing={3}>
+            {Array.from({ length: postsPerPage }).map((_, index) => (
+              <Grid size={{xs:12, sm:6, md:4}} key={`post-skeleton-${index}`}>
+                <Card sx={{ height: '100%', boxShadow: 'none', border: '1px solid #e0e0e0' }}>
+                  <Skeleton variant="rectangular" height={200} />
+                  <CardContent>
+                    <Skeleton width="30%" height={24} sx={{ mb: 1 }} />
+                    <Skeleton width="90%" height={28} sx={{ mb: 1 }} />
+                    <Skeleton width="80%" height={20} />
+                    <Skeleton width="60%" height={16} sx={{ mt: 2 }} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <>
+            <Grid container spacing={3}>
+              {paginatedPosts.map((post: any) => (
+                <Grid size={{xs:12, sm:6, md:4}} key={post.id}>
+                  <Card sx={{ 
+                    height: '100%',
+                    boxShadow: 'none',
+                    border: '1px solid #e0e0e0',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
+                    }
+                  }}>
+                    <Link to="/news/$id" params={{ id: post.documentId }}>
+                      <CardMedia
+                        component="img"
+                        image={post.cover?.url || '/default-news.jpg'}
+                        alt={post.title}
                         sx={{ 
-                          bgcolor: '#ff007a',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '0.65rem'
+                          width: '100%',
+                          height: '200px',
+                          objectFit: 'cover'
                         }}
                       />
-                    ))}
-                  </Box>
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem',
-                      lineHeight: 1.3,
-                      mb: 1,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      minHeight: '56px'
-                    }}
-                  >
-                    {post.title}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary"
-                    sx={{ 
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      mb: 2,
-                      minHeight: '60px'
-                    }}
-                  >
-                    {post.description || 'Confira este post interessante!'}
-                  </Typography>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mt: 2
-                  }}>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        color: '#666',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5
-                      }}
-                    >
-                      <Eye size={16} /> {post.views || 0}
-                    </Typography>
-                    <Button
-                      size="small"
-                      sx={{ 
-                        color: '#ff007a',
-                        fontWeight: 'bold',
-                        textTransform: 'none'
-                      }}
-                    >
-                      Ler mais
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Link>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                          {post.categories?.slice(0, 2).map((category: any) => (
+                            <Chip
+                              key={category.slug}
+                              label={category.name}
+                              size="small"
+                              sx={{ 
+                                bgcolor: '#ff007a',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '0.65rem',
+                              }}
+                            />
+                          ))}
+                        </Box>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 'bold',
+                            fontSize: '1.1rem',
+                            lineHeight: 1.3,
+                            mb: 1,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            minHeight: '66px'
+                          }}
+                        >
+                          {post.title}
+                        </Typography>
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{ 
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            mb: 2,
+                            minHeight: '60px'
+                          }}
+                        >
+                          {post.description || 'Confira este post interessante!'}
+                        </Typography>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mt: 2
+                        }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: '#666',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.5
+                            }}
+                          >
+                            <Eye size={16} /> {post.views || 0}
+                          </Typography>
+                          <Button
+                            size="small"
+                            sx={{ 
+                              color: '#ff007a',
+                              fontWeight: 'bold',
+                              textTransform: 'none'
+                            }}
+                          >
+                            Ler mais
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Link>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
 
-      {/* Paginação */}
-      {totalPages > 1 && (
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          mt: 6,
-        }}>
-          {renderPagination()}
-        </Box>
-      )}
-    </>
-  )}
-</Container>
+            {/* Paginação */}
+            {totalPages > 1 && (
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                mt: 6,
+              }}>
+                {renderPagination()}
+              </Box>
+            )}
+          </>
+        )}
+      </Container>
 
       <Newsletter/>
 
