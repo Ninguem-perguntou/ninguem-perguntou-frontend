@@ -363,6 +363,7 @@ export const Home: React.FC = () => {
                           }}
                         />
                         <Typography
+                          component="div"
                           variant="h6"
                           sx={{
                             fontWeight: "bold",
@@ -372,7 +373,10 @@ export const Home: React.FC = () => {
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
-                            minHeight: "48px",
+                            textOverflow: "ellipsis",
+                            wordBreak: "break-word",
+                            minHeight: "2.6em",
+                            maxHeight: "2.6em",
                           }}
                         >
                           {item.title}
