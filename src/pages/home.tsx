@@ -340,7 +340,11 @@ export const Home: React.FC = () => {
                       },
                     }}
                   >
-                    <Link to="/news/$id" params={{ id: item.documentId }}>
+                    <Link
+                      to="/news/$id"
+                      params={{ id: item.documentId }}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
                       <CardMedia
                         component="img"
                         image={item.cover?.url || "/default-news.jpg"}
@@ -367,6 +371,7 @@ export const Home: React.FC = () => {
                           variant="h6"
                           sx={{
                             fontWeight: "bold",
+                            color: "primary.main",
                             fontSize: "1rem",
                             lineHeight: 1.3,
                             display: "-webkit-box",
@@ -594,7 +599,11 @@ export const Home: React.FC = () => {
                       },
                     }}
                   >
-                    <Link to="/news/$id" params={{ id: post.documentId }}>
+                    <Link
+                      to="/news/$id"
+                      params={{ id: post.documentId }}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
                       <CardMedia
                         component="img"
                         image={post.cover?.url || "/default-news.jpg"}
@@ -637,6 +646,7 @@ export const Home: React.FC = () => {
                             mb: 1,
                             display: "-webkit-box",
                             WebkitLineClamp: 2,
+                            color: "primary.main",
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
                             minHeight: "66px",
