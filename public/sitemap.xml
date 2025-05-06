@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Páginas principais -->
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/about</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/podcast</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>weekly</changefreq>  <!-- Aumentado se podcasts forem frequentes -->
+    <priority>0.9</priority>  <!-- Maior prioridade para conteúdo exclusivo -->
+  </url>
+  
+  <!-- Páginas de conteúdo (exemplo) -->
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/news/rcxiigb4ffh9tszhk4y6jcxm</loc>
+    <lastmod>2025-05-05</lastmod>
+    <changefreq>yearly</changefreq>  <!-- Conteúdo permanente -->
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/news/v20yh5oo7lbdi1whn71fzkqr</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>daily</changefreq>  <!-- Conteúdo permanente -->
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Páginas de autenticação (prioridade baixa) -->
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/auth/login</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+  <url>
+    <loc>https://ninguem-perguntou.vercel.app/auth/register</loc>
+    <lastmod>2025-05-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+</urlset>

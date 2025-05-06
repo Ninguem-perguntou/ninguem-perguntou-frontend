@@ -1,5 +1,4 @@
 import Icon from "@/assets/img/icon.png";
-import { useCategories } from "@/hooks/categories";
 import {
   AppBar,
   Box,
@@ -14,7 +13,6 @@ import { LogIn, Menu, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Header = () => {
-  const { categoriesData } = useCategories();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [_, setSelectedHash] = useState<string | null>(null);
@@ -23,11 +21,10 @@ export const Header = () => {
   const handleCategoryClick = (slug: string) => {
     setSelectedCategory((prev) => (prev === slug ? null : slug));
     setMobileMenuOpen(false);
+    scrollTo(slug);
   };
 
   useEffect(() => {
-    console.log(window.location.hash);
-
     setSelectedHash(window.location.hash);
   }, [selectedCategory]);
 
@@ -41,6 +38,13 @@ export const Header = () => {
       }
     }, 0);
   };
+
+  // Itens de navegação principais
+  const mainNavItems = [
+    { id: "destaques", label: "Destaques" },
+    { id: "sobrenos", label: "Sobre nós" },
+    { id: "todososposts", label: "Todos os posts" },
+  ];
 
   return (
     <AppBar
@@ -86,6 +90,7 @@ export const Header = () => {
             </Typography>
           </Box>
 
+          {/* Desktop Navigation */}
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
@@ -93,63 +98,27 @@ export const Header = () => {
               alignItems: "center",
             }}
           >
-            <Button
-              sx={{
-                color: selectedCategory === "#destaques" ? "#ff007a" : "#000",
-                textTransform: "uppercase",
-                fontSize: "0.75rem",
-                fontWeight: "bold",
-                letterSpacing: "1px",
-                px: 1,
-                minWidth: "auto",
-                "&:hover": {
-                  color: "#ff007a",
-                  backgroundColor: "transparent",
-                },
-              }}
-              onClick={() => scrollTo("destaques")}
-            >
-              Destaques
-            </Button>
-
-            <Button
-              sx={{
-                color: selectedCategory === "#sobrenos" ? "#ff007a" : "#000",
-                textTransform: "uppercase",
-                fontSize: "0.75rem",
-                fontWeight: "bold",
-                letterSpacing: "1px",
-                px: 1,
-                minWidth: "auto",
-                "&:hover": {
-                  color: "#ff007a",
-                  backgroundColor: "transparent",
-                },
-              }}
-              onClick={() => scrollTo("sobrenos")}
-            >
-              Sobre nós
-            </Button>
-
-            <Button
-              sx={{
-                color:
-                  selectedCategory === "#todososposts" ? "#ff007a" : "#000",
-                textTransform: "uppercase",
-                fontSize: "0.75rem",
-                fontWeight: "bold",
-                letterSpacing: "1px",
-                px: 1,
-                minWidth: "auto",
-                "&:hover": {
-                  color: "#ff007a",
-                  backgroundColor: "transparent",
-                },
-              }}
-              onClick={() => scrollTo("todososposts")}
-            >
-              Todos os posts
-            </Button>
+            {mainNavItems.map((item) => (
+              <Button
+                key={item.id}
+                sx={{
+                  color: selectedCategory === `#${item.id}` ? "#ff007a" : "#000",
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                  fontWeight: "bold",
+                  letterSpacing: "1px",
+                  px: 1,
+                  minWidth: "auto",
+                  "&:hover": {
+                    color: "#ff007a",
+                    backgroundColor: "transparent",
+                  },
+                }}
+                onClick={() => scrollTo(item.id)}
+              >
+                {item.label}
+              </Button>
+            ))}
 
             <IconButton sx={{ color: "#000" }}>
               <Search className="w-5 h-5" />
@@ -163,6 +132,7 @@ export const Header = () => {
             </IconButton>
           </Box>
 
+          {/* Mobile Menu Button */}
           <IconButton
             sx={{ display: { xs: "flex", md: "none" }, color: "#000" }}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -183,13 +153,14 @@ export const Header = () => {
             borderTop: "1px solid #e0e0e0",
           }}
         >
-          {categoriesData?.data.data.map((category: any) => (
+          {/* Mesmos itens do desktop */}
+          {mainNavItems.map((item) => (
             <Button
-              key={`mobile-${category.slug}`}
+              key={`mobile-${item.id}`}
               fullWidth
-              onClick={() => handleCategoryClick(category.slug)}
+              onClick={() => handleCategoryClick(item.id)}
               sx={{
-                color: selectedCategory === category.slug ? "#ff007a" : "#000",
+                color: selectedCategory === `#${item.id}` ? "#ff007a" : "#000",
                 textTransform: "uppercase",
                 fontSize: "0.75rem",
                 fontWeight: "bold",
@@ -203,9 +174,19 @@ export const Header = () => {
                 },
               }}
             >
-              {category.name}
+              {item.label}
             </Button>
           ))}
+
+          {/* Botões adicionais no mobile */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', px: 1, py: 1 }}>
+            <IconButton sx={{ color: "#000" }}>
+              <Search className="w-5 h-5" />
+            </IconButton>
+            <IconButton onClick={() => navigate({ to: "/auth/login" })}>
+              <LogIn className="w-5 h-5" />
+            </IconButton>
+          </Box>
         </Box>
       )}
     </AppBar>

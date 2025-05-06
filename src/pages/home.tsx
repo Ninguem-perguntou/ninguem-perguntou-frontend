@@ -1,9 +1,3 @@
-import { Header } from "@/components/AppBar";
-import { Footer } from "@/components/Footer";
-import { Newsletter } from "@/components/Newsletter";
-import ScrollTopButton from "@/components/ScrollTopButton";
-import { useCategories } from "@/hooks/categories";
-import { useJornals } from "@/hooks/journals";
 import {
   Box,
   Button,
@@ -21,6 +15,13 @@ import {
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import SEO from "@/components/SEO";
+import { Header } from "@/components/AppBar";
+import ScrollTopButton from "@/components/ScrollTopButton";
+import { useJornals } from "@/hooks/journals";
+import { useCategories } from "@/hooks/categories";
+import { Newsletter } from "@/components/Newsletter";
+import { Footer } from "@/components/Footer";
 
 export const Home: React.FC = () => {
   const { jornalData, loading } = useJornals();
@@ -179,6 +180,14 @@ export const Home: React.FC = () => {
 
   return (
     <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh" }}>
+        <SEO 
+        title="Home | NINGUÉM PERGUNTOU" 
+        description="Leia as nossas matérias criativas e com conteúdos únicos, repleta de originalidade" 
+        keywords="jornalismo, notícias, LGBTQIA+, Mulheres, Cultura POP"
+        image='https://ninguem-perguntou.vercel.app/assets/icon-BhCtsIMm.png'
+        url='https://ninguem-perguntou.vercel.app'
+        type="notícias"
+      />
       {/* Header */}
       <Header />
 
@@ -433,6 +442,17 @@ export const Home: React.FC = () => {
                 apoio. Buscamos oferecer um ambiente descontraído para
                 desmitificar tabus.
               </Typography>
+              <Button
+                  variant="contained"
+                  onClick={() => navigate({ to: "/about" })}
+                  sx={{
+                    bgcolor: "#ff007a",
+                    "&:hover": { bgcolor: "#e0006a" },
+                    fontWeight: "bold",
+                  }}
+                >
+                  Clique para saber mais
+                </Button>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <Box

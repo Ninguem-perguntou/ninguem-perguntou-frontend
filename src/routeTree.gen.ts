@@ -20,10 +20,17 @@ import { Route as authAuthLoginImport } from './routes/(auth)/auth/login'
 
 // Create Virtual Routes
 
+const AboutLazyImport = createFileRoute('/about')()
 const IndexLazyImport = createFileRoute('/')()
 const PodcastIndexLazyImport = createFileRoute('/podcast/')()
 
 // Create/Update Routes
+
+const AboutLazyRoute = AboutLazyImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/news/$id': {
       id: '/news/$id'
       path: '/news/$id'
@@ -114,6 +128,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/about': typeof AboutLazyRoute
   '/news/$id': typeof NewsIdRoute
   '/podcast/$id': typeof PodcastIdRoute
   '/podcast': typeof PodcastIndexLazyRoute
@@ -123,6 +138,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/about': typeof AboutLazyRoute
   '/news/$id': typeof NewsIdRoute
   '/podcast/$id': typeof PodcastIdRoute
   '/podcast': typeof PodcastIndexLazyRoute
@@ -133,6 +149,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/about': typeof AboutLazyRoute
   '/news/$id': typeof NewsIdRoute
   '/podcast/$id': typeof PodcastIdRoute
   '/podcast/': typeof PodcastIndexLazyRoute
@@ -144,6 +161,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/news/$id'
     | '/podcast/$id'
     | '/podcast'
@@ -152,6 +170,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/news/$id'
     | '/podcast/$id'
     | '/podcast'
@@ -160,6 +179,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/news/$id'
     | '/podcast/$id'
     | '/podcast/'
@@ -170,6 +190,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  AboutLazyRoute: typeof AboutLazyRoute
   NewsIdRoute: typeof NewsIdRoute
   PodcastIdRoute: typeof PodcastIdRoute
   PodcastIndexLazyRoute: typeof PodcastIndexLazyRoute
@@ -179,6 +200,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  AboutLazyRoute: AboutLazyRoute,
   NewsIdRoute: NewsIdRoute,
   PodcastIdRoute: PodcastIdRoute,
   PodcastIndexLazyRoute: PodcastIndexLazyRoute,
@@ -197,6 +219,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/about",
         "/news/$id",
         "/podcast/$id",
         "/podcast/",
@@ -206,6 +229,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/about": {
+      "filePath": "about.lazy.tsx"
     },
     "/news/$id": {
       "filePath": "news/$id.tsx"
