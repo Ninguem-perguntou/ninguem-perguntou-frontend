@@ -1,6 +1,7 @@
 import { Header } from "@/components/AppBar";
 import { Footer } from "@/components/Footer";
 import { Newsletter } from "@/components/Newsletter";
+import SEO from "@/components/SEO";
 import { usePodcast } from "@/hooks/podcast";
 import { Box, Container, Grid, Typography, Card, CardContent, CardMedia, Chip, Skeleton } from "@mui/material";
 import { Link } from "@tanstack/react-router";
@@ -32,6 +33,14 @@ export const PodcastList = () => {
             flexDirection: 'column',
             backgroundColor: 'background.default'
         }}>
+            <SEO
+                title="Podcast | NINGUÉM PERGUNTOU" 
+                description="Escuta nossos podcasts" 
+                keywords="jornalismo, notícias, LGBTQIA+, Mulheres, Cultura POP"
+                image='https://ninguem-perguntou.vercel.app/assets/icon-BhCtsIMm.png'
+                url='https://ninguem-perguntou.vercel.app'
+                type="notícias"
+            />
             <Header />
             
             <Box component="main" sx={{ flex: 1, py: 8 }}>
