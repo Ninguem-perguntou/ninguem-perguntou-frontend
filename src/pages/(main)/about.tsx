@@ -231,39 +231,12 @@ export const About = () => {
               mb: 2,
             }}
           >
-            Equipe
-          </Typography>
-
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="h4" sx={{ fontSize: "1.2rem", mb: 1.5 }}>
-                Edição
-              </Typography>
-              <Typography variant="body1">[Nome do Editor]</Typography>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="h4" sx={{ fontSize: "1.2rem", mb: 1.5 }}>
-                Reportagem
-              </Typography>
-              <Typography variant="body1">[Nome dos Repórteres]</Typography>
-            </Grid>
-          </Grid>
-
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 600,
-              fontSize: "1.4rem",
-              mt: 4,
-              mb: 2,
-            }}
-          >
             Contato
           </Typography>
           <Typography variant="body1" paragraph>
             Email:{" "}
-            <Link href="mailto:contato@ninguemperguntou.com" color="primary">
-              contato@ninguemperguntou.com
+            <Link href="ninguemperguntou@gmail.com" color="primary">
+              ninguemperguntou@gmail.com
             </Link>
           </Typography>
 
